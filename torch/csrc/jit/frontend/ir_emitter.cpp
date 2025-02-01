@@ -1320,6 +1320,8 @@ struct to_ir {
         return CondValue(expr_out, RefinementSet({}), static_if);
       } break;
     }
+    //Default return in case of unhandled cases
+    return CondValue(nullptr, RefinementSet({}), std::nullopt);
   }
 
   std::shared_ptr<Environment> emitSingleIfBranch(
@@ -3763,6 +3765,7 @@ struct to_ir {
       }
       default:
         TORCH_INTERNAL_ASSERT(false, "unknown special form: ", form);
+        return nullptr;
     }
   }
 
@@ -4152,10 +4155,10 @@ struct to_ir {
       case TK_APPLY: {
         auto apply = Apply(tree);
         return emitApplyExpr(apply, n_binders, type_hint);
-      } break;
+      }
       case TK_SUBSCRIPT: {
         return emitSubscript(Subscript(tree), type_hint);
-      } break;
+      }
       default:
         return std::make_shared<SimpleValue>(emitSimpleExpr(tree, type_hint));
     }
@@ -4770,43 +4773,43 @@ struct to_ir {
       }
       case TK_CONST: {
         return emitConst(Const(tree));
-      } break;
+      }
       case TK_TRUE: {
         return graph->insertConstant(true, tree->range());
-      } break;
+      }
       case TK_FALSE: {
         return graph->insertConstant(false, tree->range());
-      } break;
+      }
       case TK_NONE: {
         return graph->insertConstant(IValue(), tree->range());
-      } break;
+      }
       case TK_IF_EXPR: {
         return emitTernaryIf(TernaryIf(tree), type_hint);
-      } break;
+      }
       case TK_STRINGLITERAL: {
         return emitStringLiteral(StringLiteral(tree));
-      } break;
+      }
       case TK_LIST_LITERAL: {
         auto ll = ListLiteral(tree);
         return emitListLiteral(ll, type_hint);
-      } break;
+      }
       case TK_TUPLE_LITERAL: {
         auto ll = TupleLiteral(tree);
         auto values = getValues(ll.inputs(), /*maybe_unpack=*/true);
         return graph->insertNode(graph->createTuple(values))->output();
-      } break;
+      }
       case TK_DICT_LITERAL: {
         auto dc = DictLiteral(tree);
         return emitDictLiteral(dc, type_hint);
-      } break;
+      }
       case TK_LIST_COMP: {
         auto lc = ListComp(tree);
         return emitListComprehension(lc, type_hint);
-      } break;
+      }
       case TK_DICT_COMP: {
         auto dc = DictComp(tree);
         return emitDictComprehension(dc, type_hint);
-      } break;
+      }
       default:
         throw(ErrorReport(tree) << "Cannot emit expr for: " << tree);
     }
