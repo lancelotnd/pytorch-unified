@@ -23,6 +23,12 @@ from . import (
     _lazy_init,
     is_initialized,
 )
+from os import environ
+if 'PYTORCH_UVM_ENABLE' in environ:
+    torch._C._cuda_setEnabledUVM(True)
+
+if 'PYTORCH_MOVE_ENABLE' in environ:
+    torch._C._cuda_setEnabledMove(True)
 from ._memory_viz import memory as _memory, segments as _segments
 
 
@@ -736,6 +742,32 @@ def mem_get_info(device: Union[Device, int] = None) -> tuple[int, int]:
     # optional=True allows `device = torch.device('cuda')` for which device.index is None
     device = _get_device_index(device, optional=True)
     return torch.cuda.cudart().cudaMemGetInfo(device)
+
+
+def set_enabled_uvm(enable):
+    r"""Enable/disable Unified Virtual Memory.
+    Arguments:
+        enable (bool): desired UVM setting.
+    """
+    torch._C._cuda_setEnabledUVM(enable)
+
+
+def get_enabled_uvm():
+    r"""Returns a bool indicating if Unified Virtual Memory is currently enabled."""
+    return torch._C._cuda_getEnabledUVM()
+
+
+def set_enabled_move(enable):
+    r"""Enable/disable Unified Virtual Memory.
+    Arguments:
+        enable (bool): desired UVM setting.
+    """
+    torch._C._cuda_setEnabledMove(enable)
+
+
+def get_enabled_move():
+    r"""Returns a bool indicating if Unified Virtual Memory is currently enabled."""
+    return torch._C._cuda_getEnabledMove()
 
 
 def _record_memory_history_legacy(

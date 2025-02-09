@@ -191,6 +191,10 @@ class TORCH_API Context {
   // that CuDNN was enabled, it doesn't actually say anything about
   // whether or not CuDNN is actually usable.  Use cudnn_is_acceptable
   // to test this instead
+  bool userEnabledUVM() const;
+  void setUserEnabledUVM(bool e);
+  bool userEnabledMove() const;
+  void setUserEnabledMove(bool e);
   bool userEnabledCuDNN() const;
   void setUserEnabledCuDNN(bool e);
   bool userEnabledMkldnn() const;
@@ -424,6 +428,8 @@ class TORCH_API Context {
   bool allow_bf16_reduction_cublas = true;
   bool enabled_mkldnn = true;
   bool enabled_nnpack = true;
+  bool enabled_uvm = false;
+  bool enabled_move = false;
   at::LinalgBackend linalg_preferred_backend =
       c10::utils::check_env("TORCH_LINALG_PREFER_CUSOLVER") == true
       ? at::LinalgBackend::Cusolver

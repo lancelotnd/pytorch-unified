@@ -516,6 +516,43 @@ PyObject* THCPModule_cudaLockMutex(PyObject* module, PyObject* noargs) {
   Py_RETURN_NONE;
 }
 
+
+PyObject * THCPModule_setUserEnabledUVM(PyObject *_unused, PyObject *arg)
+{
+  HANDLE_TH_ERRORS
+  THPUtils_assert(PyBool_Check(arg), "set_enabled_uvm expects a bool, "
+          "but got %s", THPUtils_typename(arg));
+  at::globalContext().setUserEnabledUVM(arg == Py_True);
+  Py_RETURN_NONE;
+  END_HANDLE_TH_ERRORS
+}
+
+PyObject * THCPModule_userEnabledUVM(PyObject *_unused, PyObject *noargs)
+{
+  HANDLE_TH_ERRORS
+  if (at::globalContext().userEnabledUVM()) Py_RETURN_TRUE;
+  else Py_RETURN_FALSE;
+  END_HANDLE_TH_ERRORS
+}
+
+PyObject * THCPModule_setUserEnabledMove(PyObject *_unused, PyObject *arg)
+{
+  HANDLE_TH_ERRORS
+  THPUtils_assert(PyBool_Check(arg), "set_enabled_move expects a bool, "
+          "but got %s", THPUtils_typename(arg));
+  at::globalContext().setUserEnabledMove(arg == Py_True);
+  Py_RETURN_NONE;
+  END_HANDLE_TH_ERRORS
+}
+
+PyObject * THCPModule_userEnabledMove(PyObject *_unused, PyObject *noargs)
+{
+  HANDLE_TH_ERRORS
+  if (at::globalContext().userEnabledMove()) Py_RETURN_TRUE;
+  else Py_RETURN_FALSE;
+  END_HANDLE_TH_ERRORS
+}
+
 PyObject* THCPModule_cudaUnlockMutex(PyObject* module, PyObject* noargs) {
   auto mutex = c10::cuda::getFreeMutex();
   PyGILState_Release(cudaMutexGILState);
@@ -1953,6 +1990,10 @@ static struct PyMethodDef _THCPModule_methods[] = {
      THCPModule_resetPeakMemoryStats,
      METH_O,
      nullptr},
+  {"_cuda_getEnabledUVM", THCPModule_userEnabledUVM, METH_NOARGS, nullptr},
+  {"_cuda_setEnabledUVM", THCPModule_setUserEnabledUVM, METH_O,   nullptr},
+  {"_cuda_getEnabledMove", THCPModule_userEnabledMove, METH_NOARGS, nullptr},
+  {"_cuda_setEnabledMove", THCPModule_setUserEnabledMove, METH_O,   nullptr},
     {"_cuda_memorySnapshot", THCPModule_memorySnapshot, METH_NOARGS, nullptr},
     {"_cuda_attach_out_of_memory_observer",
      THCPModule_attachOutOfMemoryObserver,
