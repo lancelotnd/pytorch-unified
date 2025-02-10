@@ -66,6 +66,12 @@ Tensor manage_memory(const Tensor& self, c10::optional<Device> device) {
   return at::_manage_memory(self, device);
 }
 
+Tensor _manage_memory(const Tensor& self, c10::optional<at::Device> device) {
+  DispatchKeySet _dk = c10::DispatchKeySet(c10::computeDispatchKey(c10::nullopt, self.layout(), device.value_or(at::kCUDA)));
+  return at::_ops::_manage_memory::redispatch(_dk, self, device);
+}
+
+
 Tensor _pin_memory(const Tensor& self, std::optional<c10::Device> device) {
   TORCH_CHECK(self.device().is_cpu(), "cannot pin '", self.toString(), "' only dense CPU tensors can be pinned");
   // Use getAcceleratorHooksInterface to make pin_memory device-agnostic
