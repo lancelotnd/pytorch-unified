@@ -16,6 +16,7 @@
 #include <ATen/ops/pin_memory_native.h>
 #include <ATen/ops/_pin_memory_native.h>
 #include <ATen/ops/is_managed_ops.h>
+#include <ATen/ops/_manage_memory.h>
 #include <ATen/ops/_manage_memory_ops.h>
 #include <ATen/ops/empty_cpu_dispatch.h>
 #endif
