@@ -12,6 +12,11 @@
 namespace at::detail {
 namespace {
 c10::Allocator* GetCPUAllocatorMaybePinned(bool pin_memory) {
+  if (at::globalContext().userEnabledUVM()) {
+    // When UVM is enabled, we only use a single allocator
+    // for all allocations.
+    return detail::getCUDAHooks().getUnifiedDeviceAllocatorCpu();
+  } else {
   if (pin_memory) {
     // NB: This is not quite right, if you somehow had both CUDA and PrivateUse1 initialized
     // in the same PyTorch build, you would ONLY ever get the CUDA pinned memory allocator.
@@ -34,6 +39,7 @@ c10::Allocator* GetCPUAllocatorMaybePinned(bool pin_memory) {
     } else {
       TORCH_CHECK(false, "Need to provide pin_memory allocator to use pin memory.")
     }
+  }
   }
   return c10::GetCPUAllocator();
 }

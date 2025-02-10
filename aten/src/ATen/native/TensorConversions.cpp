@@ -229,6 +229,8 @@ static inline std::optional<Device> ensure_has_index(
   return ensure_has_index(device.value());
 }
 
+
+
 Tensor _to_copy(
     const Tensor& self,
     std::optional<ScalarType> dtype,
@@ -393,6 +395,22 @@ Tensor _to_copy(
   return r;
 }
 
+Tensor _to_move(
+    const Tensor& self,
+    c10::optional<ScalarType> dtype,
+    c10::optional<Layout> layout,
+    c10::optional<Device> device,
+    c10::optional<bool> pin_memory,
+    bool non_blocking,
+    c10::optional<c10::MemoryFormat> optional_memory_format) {
+  TORCH_CHECK(!layout.has_value() || self.layout() == layout.value(),
+           "to(options) doesn't support converting to a different layout, "
+           "but got self.layout being ", self.layout(),
+           " and options.layout set as ", layout.value());
+
+  return self.move_(device, non_blocking);
+}
+
 template <typename T>
 static inline bool is_null_or_equal_to(
     const std::optional<T>& test,
@@ -422,12 +440,43 @@ bool to_will_alias(
        self.suggest_memory_format() == memory_format);
 }
 
+bool to_will_move(
+    const Tensor& self,
+    c10::optional<ScalarType> dtype,
+    c10::optional<Layout> layout,
+    c10::optional<Device> device,
+    bool copy,
+    c10::optional<c10::MemoryFormat> optional_memory_format) {
+  auto memory_format = optional_memory_format.value_or(MemoryFormat::Preserve);
+
+  if (!globalContext().userEnabledMove()) {
+    return false;
+  }
+
+  // Let copy kernel handle meta tensor targets
+  if (device.has_value() && (device.value().type() == DeviceType::Meta)) {
+    return false;
+  }
+
+  // Now check that we can "move" instead of copy if UVM is
+  // enabled, we have a manged tensor and the dtype and layout
+  // are the same. Device also needs to be changing (good enough?)
+  return is_null_or_equal_to(dtype, self.dtype().toScalarType()) &&
+    is_null_or_equal_to(layout, self.layout()) &&
+    (device != self.device()) &&
+    !copy && globalContext().userEnabledUVM() &&
+    self.is_managed() &&
+    (memory_format == MemoryFormat::Preserve ||
+     self.suggest_memory_format() == memory_format);
+}
+
 static inline Tensor to_impl(
     const Tensor& self,
     std::optional<ScalarType> dtype,
     std::optional<Layout> layout,
     std::optional<Device> device,
     std::optional<bool> pin_memory,
+    c10::optional<bool> managed_memory,
     bool non_blocking,
     bool copy,
     std::optional<c10::MemoryFormat> optional_memory_format) {
@@ -435,6 +484,10 @@ static inline Tensor to_impl(
   if (to_will_alias(
           self, dtype, layout, device, copy, optional_memory_format)) {
     return self;
+  }
+  if (to_will_move(self, dtype, layout, device, copy, optional_memory_format)) {
+    return at::_to_move(
+      self, dtype, layout, device, pin_memory, non_blocking, optional_memory_format);
   }
   return at::_to_copy(
       self,
@@ -474,6 +527,7 @@ Tensor _autocast_to_reduced_precision(
         std::nullopt,
         std::nullopt,
         std::nullopt,
+        std::nullopt,
         false,
         false,
         std::nullopt);
@@ -495,6 +549,7 @@ Tensor _autocast_to_full_precision(
     return to_impl(
         self,
         at::ScalarType::Float,
+        std::nullopt,
         std::nullopt,
         std::nullopt,
         std::nullopt,
@@ -521,6 +576,7 @@ Tensor to(
       layout,
       ensure_has_index(device),
       pin_memory,
+      std::nullopt,
       non_blocking,
       copy,
       optional_memory_format);
@@ -539,6 +595,7 @@ Tensor to(
       std::nullopt,
       ensure_has_index(device),
       std::nullopt,
+      std::nullopt,
       non_blocking,
       copy,
       optional_memory_format);
@@ -553,6 +610,7 @@ Tensor to(
   return to_impl(
       self,
       dtype,
+      std::nullopt,
       std::nullopt,
       std::nullopt,
       std::nullopt,
@@ -574,6 +632,7 @@ Tensor to(
       options.layout(),
       options.device(),
       options.pinned_memory(),
+      options.managed_memory(),
       non_blocking,
       copy,
       optional_memory_format);

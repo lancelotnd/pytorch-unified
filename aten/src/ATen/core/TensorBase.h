@@ -369,6 +369,10 @@ class TORCH_API TensorBase {
     at::share_memory_(*this);
   }
 
+  inline void _set_new_device(Device dst_device) const {
+    impl_->_set_new_device(dst_device);
+  }
+
   inline bool _is_zerotensor() const {
     return impl_->_is_zerotensor();
   }
