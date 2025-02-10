@@ -15,6 +15,8 @@
 #include <ATen/ops/is_pinned_native.h>
 #include <ATen/ops/pin_memory_native.h>
 #include <ATen/ops/_pin_memory_native.h>
+#include <ATen/ops/is_managed_ops.h>
+#include <ATen/ops/_manage_memory_ops.h>
 #include <ATen/ops/empty_cpu_dispatch.h>
 #endif
 
@@ -55,10 +57,6 @@ Tensor pin_memory(const Tensor& self, std::optional<c10::Device> device) {
   return at::_pin_memory(self, device);
 }
 
-bool is_managed_default(const Tensor& self, c10::optional<Device> device) {
-  return false;
-}
-
 Tensor manage_memory(const Tensor& self, c10::optional<Device> device) {
   if (self.is_managed(device)) {
     return self;
@@ -66,10 +64,27 @@ Tensor manage_memory(const Tensor& self, c10::optional<Device> device) {
   return at::_manage_memory(self, device);
 }
 
-Tensor _manage_memory(const Tensor& self, c10::optional<at::Device> device) {
-  DispatchKeySet _dk = c10::DispatchKeySet(c10::computeDispatchKey(c10::nullopt, self.layout(), device.value_or(at::kCUDA)));
-  return at::_ops::_manage_memory::redispatch(_dk, self, device);
+bool is_managed_default(const Tensor& self, c10::optional<Device> device) {
+  return false;
 }
+
+Tensor _manage_memory(const Tensor& self, std::optional<c10::Device> device) {
+  TORCH_CHECK(self.device().is_cpu(), "cannot pin '", self.toString(), "' only dense CPU tensors can be pinned");
+  // Use getAcceleratorHooksInterface to make pin_memory device-agnostic
+  auto* allocator = device.has_value()?
+      at::globalContext().getUnifedDeviceAllocator(device.value().type()):
+      at::globalContext().getUnifedDeviceAllocatorCpu();
+  auto storage = Storage(
+      Storage::use_byte_size_t(),
+      detail::computeStorageNbytes(
+          self.sizes(), self.strides(), self.dtype().itemsize()),
+      allocator,
+      /*resizable=*/false);
+  auto tensor = at::cpu::empty({0}, self.options()).set_(storage, 0, self.sizes(), self.strides());
+  tensor.move_(self);
+  return tensor;
+}
+
 
 
 Tensor _pin_memory(const Tensor& self, std::optional<c10::Device> device) {
