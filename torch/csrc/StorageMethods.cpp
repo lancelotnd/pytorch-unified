@@ -68,6 +68,18 @@ static PyObject* THPStorage_resizable(PyObject* self, PyObject* noargs) {
   END_HANDLE_TH_ERRORS
 }
 
+static PyObject* THPStorage_(isManaged)(PyObject* _self, PyObject* noargs) {
+  HANDLE_TH_ERRORS
+  auto self = (THPStorage*)_self;
+#if defined(USE_CUDA)
+  return PyBool_FromLong(
+      at::globalContext().isManagedPtr(self->cdata->data<scalar_t>()));
+#else
+  Py_RETURN_FALSE;
+#endif
+  END_HANDLE_TH_ERRORS
+}
+
 static PyObject* THPStorage_copy_(
     PyObject* self,
     PyObject* args,
@@ -611,6 +623,7 @@ static PyMethodDef THPStorage_methods[] = {
     {"resize_", THPStorage_resize_, METH_O, nullptr},
     {"nbytes", THPStorage_nbytes, METH_NOARGS, nullptr},
     {"data_ptr", THPStorage_dataPtr, METH_NOARGS, nullptr},
+    {"is_managed", THPStorage_(isManaged), METH_NOARGS, nullptr},
     {"resizable", THPStorage_resizable, METH_NOARGS, nullptr},
     {"_write_file", THPStorage_writeFile, METH_VARARGS, nullptr},
     {"_new_with_file",

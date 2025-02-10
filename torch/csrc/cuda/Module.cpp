@@ -16,6 +16,7 @@
 #include <ATen/cuda/CUDAContext.h>
 #include <ATen/cuda/CUDAGeneratorImpl.h>
 #include <ATen/cuda/CachingHostAllocator.h>
+#include <ATen/cuda/UvmMemoryAllocator.h>
 #include <ATen/cuda/Sleep.h>
 #include <ATen/cuda/detail/CUDAHooks.h>
 #include <ATen/cuda/jiterator.h>
@@ -315,6 +316,23 @@ PyObject* THCPModule_cudaCachingAllocator_raw_alloc(
   return PyLong_FromVoidPtr(mem);
   END_HANDLE_TH_ERRORS
 }
+
+PyObject * THCPModule_cudaUnifiedDeviceAllocator(PyObject *_unused, PyObject *noargs)
+{
+  HANDLE_TH_ERRORS
+  c10::Allocator* allocator = at::cuda::getUnifiedDeviceAllocator();
+  return PyLong_FromVoidPtr(allocator);
+  END_HANDLE_TH_ERRORS
+}
+
+PyObject * THCPModule_cudaUnifiedDeviceAllocatorCpu(PyObject *_unused, PyObject *noargs)
+{
+  HANDLE_TH_ERRORS
+  c10::Allocator* allocator = at::cuda::getUnifiedDeviceAllocatorCpu();
+  return PyLong_FromVoidPtr(allocator);
+  END_HANDLE_TH_ERRORS
+}
+
 
 // Unpack a PyObject to at::Scalar, throw an exception if it fails
 at::Scalar as_scalar(PyObject* arg) {

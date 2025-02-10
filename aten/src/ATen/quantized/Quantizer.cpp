@@ -112,17 +112,12 @@ inline Tensor new_qtensor(
   auto device = options.device();
   at::Allocator* allocator = nullptr;
   // TODO: why isn't this just using GetAllocator
-  if (device.is_cuda()) {
-    allocator = at::detail::getCUDAHooks().getCUDADeviceAllocator();
-  } else if (at::accelerator::isAccelerator(device.type())) {
-    TORCH_INTERNAL_ASSERT(!device.is_cuda(), "CUDA should already get the allocator.");
-    allocator = at::GetAllocator(device.type());
-  } else if (device.is_cpu()) {
-    allocator = at::getCPUAllocator();
-  } else if (device.is_meta()) {
-    allocator = GetAllocator(kMeta);
+  if (at::globalContext().userEnabledUVM()) {
+    allocator = at::detail::getCUDAHooks().getUnifiedDeviceAllocator();
   } else {
-    TORCH_INTERNAL_ASSERT(0, "unrecognized device for new_qtensor: ", device);
+    allocator = options.device().is_cuda()
+      ? at::detail::getCUDAHooks().getCUDADeviceAllocator()
+      : at::getCPUAllocator();
   }
 
 #ifdef USE_PYTORCH_QNNPACK

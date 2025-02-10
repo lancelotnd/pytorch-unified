@@ -107,6 +107,9 @@ class TORCH_API Context {
     }
     return getAcceleratorHooksInterface(opt_device_type).isPinnedPtr(data);
   }
+  static bool isManagedPtr(void* data) {
+    return detail::getCUDAHooks().isManagedPtr(data);
+  }
 
   Allocator* getPinnedMemoryAllocator(
       std::optional<c10::DeviceType> device_type = std::nullopt) {

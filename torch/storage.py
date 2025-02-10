@@ -1175,6 +1175,16 @@ class TypedStorage:
             self._untyped_storage.pin_memory(device=device)
         )
 
+
+    def manage_memory(self):
+        """Copies the storage to manage memory, if it's not already manage."""
+        import torch.cuda
+        if self.is_cuda:
+            allocator = torch.cuda._manage_allocator()  # type: ignore[attr-defined]
+        else:
+            allocator = torch.cuda._manage_cpu_allocator()  # type: ignore[attr-defined]
+        return type(self)(self.size(), allocator=allocator).copy_(self)
+
     def share_memory_(self):
         """See :meth:`torch.UntypedStorage.share_memory_`"""
         _warn_typed_storage_removal()
