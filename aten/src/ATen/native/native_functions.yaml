@@ -1796,7 +1796,7 @@
   device_guard: False
   dispatch:
     CompositeExplicitAutograd: move_
-  autogen: move.functional, move.out
+  autogen: move, move.out
 
 
 # We need this to be able to properly copy from a CPU to an XLA tensor with different sizes.
