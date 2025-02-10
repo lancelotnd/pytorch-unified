@@ -914,7 +914,8 @@ struct C10_API TensorImpl : public c10::intrusive_ptr_target {
     // TODO: enforce this
 
     // 1) set the device in the storage object
-    storage_.data_ptr().unsafe_set_device(dst_device);
+    const_cast<c10::DataPtr&>(storage_.data_ptr()).unsafe_set_device(dst_device);
+    //storage_.data_ptr().unsafe_set_device(dst_device);
 
     // 2) set the local device_opt
     device_opt_ = storage_.device();
