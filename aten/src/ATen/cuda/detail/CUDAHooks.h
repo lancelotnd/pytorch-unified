@@ -21,7 +21,7 @@ struct CUDAHooks : public at::CUDAHooksInterface {
   void init() const override;
   Device getDeviceFromPtr(void* data) const override;
   bool isPinnedPtr(const void* data) const override;
-  bool isManagedPtr(void* data) const override;
+  bool isManagedPtr(const void* data) const override;
   const Generator& getDefaultGenerator(
       DeviceIndex device_index = -1) const override;
   Generator getNewGenerator(

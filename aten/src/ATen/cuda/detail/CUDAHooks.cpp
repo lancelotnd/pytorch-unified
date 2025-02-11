@@ -151,7 +151,7 @@ bool CUDAHooks::isPinnedPtr(const void* data) const {
   return attr.type == cudaMemoryTypeHost;
 }
 
-bool CUDAHooks::isManagedPtr(void* data) const {
+bool CUDAHooks::isManagedPtr(const void* data) const {
   // First check if driver is broken/missing, in which case PyTorch CPU
   // functionalities should still work, we should report `false` here.
   if (!at::cuda::is_available()) {
