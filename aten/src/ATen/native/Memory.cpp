@@ -4,6 +4,7 @@
 #include <ATen/Context.h>
 #include <c10/core/Storage.h>
 #include <ATen/EmptyTensor.h>
+#include <ATen/detail/CUDAHooksInterface.h>
 
 #ifndef AT_PER_OPERATOR_HEADERS
 #include <ATen/Functions.h>
@@ -73,8 +74,8 @@ Tensor _manage_memory(const Tensor& self, std::optional<c10::Device> device) {
   TORCH_CHECK(self.device().is_cpu(), "cannot pin '", self.toString(), "' only dense CPU tensors can be pinned");
   // Use getAcceleratorHooksInterface to make pin_memory device-agnostic
   auto* allocator = device.has_value()?
-      at::globalContext().getUnifedDeviceAllocator(device.value().type()):
-      at::globalContext().getUnifedDeviceAllocatorCpu();
+      detail::getCUDAHooks().getUnifiedDeviceAllocator():
+      detail::getCUDAHooks().getUnifiedDeviceAllocatorCpu();
   auto storage = Storage(
       Storage::use_byte_size_t(),
       detail::computeStorageNbytes(
