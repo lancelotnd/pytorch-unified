@@ -83,7 +83,8 @@ Tensor _manage_memory(const Tensor& self, std::optional<c10::Device> device) {
       allocator,
       /*resizable=*/false);
   auto tensor = at::cpu::empty({0}, self.options()).set_(storage, 0, self.sizes(), self.strides());
-  tensor.move_(self);
+  bool non_blocking = false;
+  tensor.move_(device, non_blocking);
   return tensor;
 }
 
