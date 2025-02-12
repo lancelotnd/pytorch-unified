@@ -699,7 +699,6 @@ PyObject* THCPModule_memoryStats(PyObject* _unused, PyObject* arg) {
 PyObject * THCPModule_managedMemoryStats(PyObject *_unused, PyObject *arg)
 {
   HANDLE_TH_ERRORS
-  THPUtils_assert(THPUtils_checkLong(arg), "invalid argument to memory_allocated");
   const int device = (int) THPUtils_unpackLong(arg);
 
   using at::cuda::CachingManagedAllocator::StatType;
