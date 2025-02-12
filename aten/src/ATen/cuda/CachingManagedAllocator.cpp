@@ -1224,7 +1224,7 @@ struct CachingManagedAllocator final : public at::Allocator {
     }
   }
    void copy_data(void* dest, const void* src, std::size_t count) const override {
-     dest = src;
+     dest = const_cast<void*>(src);
     //std::memcpy(dest, src, count);
   }
 };
@@ -1258,7 +1258,7 @@ struct CachingManagedAllocatorCpu final : public at::Allocator {
   }
   //Bypassing copy for unified arch. Might break something...
   void copy_data(void* dest, const void* src, std::size_t count) const override {
-    dest = src;
+    dest = const_cast<void*>(src);
     //std::memcpy(dest, src, count);
   }
 };
