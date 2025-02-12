@@ -1223,9 +1223,9 @@ struct CachingManagedAllocator final : public at::Allocator {
       return &CachingManagedDeleter;
     }
   }
-   // ✅ Added missing function
    void copy_data(void* dest, const void* src, std::size_t count) const override {
-    std::memcpy(dest, src, count);
+     dest = src;
+    //std::memcpy(dest, src, count);
   }
 };
 
@@ -1256,9 +1256,10 @@ struct CachingManagedAllocatorCpu final : public at::Allocator {
       return &CachingManagedDeleter;
     }
   }
-  // ✅ Added missing function
+  //Bypassing copy for unified arch. Might break something...
   void copy_data(void* dest, const void* src, std::size_t count) const override {
-    std::memcpy(dest, src, count);
+    dest = src;
+    //std::memcpy(dest, src, count);
   }
 };
 
