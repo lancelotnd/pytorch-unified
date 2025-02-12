@@ -15,7 +15,7 @@ bool is_managed_cuda(const Tensor& self, c10::optional<Device> device) {
   TORCH_INTERNAL_ASSERT_DEBUG_ONLY(
       (!device.has_value() && device->is_cpu()) || device->is_cuda());
   // TODO: unhook this
-  return detail::getCUDAHooks().isManagedPtr(self.storage().data());
+  return detail::getCUDAHooks().isManagedPtr(const_cast<void*>(self.storage().data()));
 }
 
 Tensor _manage_memory_cuda(const Tensor& self, c10::optional<Device> device) {

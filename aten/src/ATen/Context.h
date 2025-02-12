@@ -107,7 +107,7 @@ class TORCH_API Context {
     }
     return getAcceleratorHooksInterface(opt_device_type).isPinnedPtr(data);
   }
-  static bool isManagedPtr(void* data) {
+  static bool isManagedPtr(const void* data) {
     return detail::getCUDAHooks().isManagedPtr(data);
   }
 

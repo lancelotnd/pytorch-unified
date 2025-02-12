@@ -1200,7 +1200,7 @@ static void uncached_delete(void* ptr) {
 }
 
 struct CachingManagedAllocator final : public at::Allocator {
-  at::DataPtr allocate(size_t size) override {
+  at::DataPtr allocate(const size_t size) const override {
     int device;
     C10_CUDA_CHECK(cudaGetDevice(&device));
     void* ptr = nullptr;
@@ -1226,7 +1226,7 @@ struct CachingManagedAllocator final : public at::Allocator {
 };
 
 struct CachingManagedAllocatorCpu final : public at::Allocator {
-  at::DataPtr allocate(size_t size) override {
+  at::DataPtr allocate(const size_t size) const override {
     void* ptr = nullptr;
     if (forceUncachedAllocator()) {
       // Deliberately don't use cudaMallocMaybeCapturing here, to force an error
