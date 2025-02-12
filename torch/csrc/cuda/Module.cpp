@@ -538,8 +538,6 @@ PyObject* THCPModule_cudaLockMutex(PyObject* module, PyObject* noargs) {
 PyObject * THCPModule_setUserEnabledUVM(PyObject *_unused, PyObject *arg)
 {
   HANDLE_TH_ERRORS
-  THPUtils_assert(PyBool_Check(arg), "set_enabled_uvm expects a bool, "
-          "but got %s", THPUtils_typename(arg));
   at::globalContext().setUserEnabledUVM(arg == Py_True);
   Py_RETURN_NONE;
   END_HANDLE_TH_ERRORS
@@ -556,8 +554,6 @@ PyObject * THCPModule_userEnabledUVM(PyObject *_unused, PyObject *noargs)
 PyObject * THCPModule_setUserEnabledMove(PyObject *_unused, PyObject *arg)
 {
   HANDLE_TH_ERRORS
-  THPUtils_assert(PyBool_Check(arg), "set_enabled_move expects a bool, "
-          "but got %s", THPUtils_typename(arg));
   at::globalContext().setUserEnabledMove(arg == Py_True);
   Py_RETURN_NONE;
   END_HANDLE_TH_ERRORS
