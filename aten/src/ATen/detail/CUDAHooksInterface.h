@@ -90,7 +90,7 @@ struct TORCH_API CUDAHooksInterface : AcceleratorHooksInterface {
     return false;
   }
 
-  virtual bool isManagedPtr(void* data) const {
+  virtual bool isManagedPtr(const void* data) const {
     return false;
   }
 
