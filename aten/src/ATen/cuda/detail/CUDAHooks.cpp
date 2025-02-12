@@ -186,7 +186,7 @@ bool CUDAHooks::isManagedPtr(const void* data) const {
 #if defined(CUDART_VERSION)
   return attr.type == cudaMemoryTypeManaged;
 #else
-  return attr.memoryType == cudaMemoryTypeManaged;
+  return false;
 #endif
 }
 
