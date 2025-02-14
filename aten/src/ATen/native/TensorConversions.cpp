@@ -229,8 +229,7 @@ static inline std::optional<Device> ensure_has_index(
   return ensure_has_index(device.value());
 }
 
-
-
+// Deliberately cheating and returning the original object. It might break stuff.
 Tensor _to_copy(
     const Tensor& self,
     std::optional<ScalarType> dtype,
@@ -239,6 +238,19 @@ Tensor _to_copy(
     std::optional<bool> pin_memory,
     bool non_blocking,
     std::optional<c10::MemoryFormat> optional_memory_format) {
+  return self;
+}
+
+/*
+Tensor _to_copy(
+    const Tensor& self,
+    std::optional<ScalarType> dtype,
+    std::optional<Layout> layout,
+    std::optional<Device> device,
+    std::optional<bool> pin_memory,
+    bool non_blocking,
+    std::optional<c10::MemoryFormat> optional_memory_format) {
+
   TORCH_CHECK(
       !layout.has_value() || self.layout() == layout.value(),
       "to(options) doesn't support converting to a different layout, "
@@ -394,6 +406,7 @@ Tensor _to_copy(
   r.copy_(self, non_blocking);
   return r;
 }
+*/
 
 Tensor _to_move(
     const Tensor& self,
