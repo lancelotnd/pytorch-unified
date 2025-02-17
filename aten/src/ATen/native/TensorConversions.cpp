@@ -238,7 +238,7 @@ Tensor _to_copy(
     std::optional<bool> pin_memory,
     bool non_blocking,
     std::optional<c10::MemoryFormat> optional_memory_format) {
-  return _to_move(self,dtype,layout,device,pin_memory,non_blocking,optional_memory_format);
+  return at::native::_to_move(self,dtype,layout,device,pin_memory,non_blocking,optional_memory_format);
 }
 
 /*
