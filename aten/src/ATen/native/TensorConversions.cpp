@@ -238,7 +238,7 @@ Tensor _to_copy(
     std::optional<bool> pin_memory,
     bool non_blocking,
     std::optional<c10::MemoryFormat> optional_memory_format) {
-  return self;
+  return self.alias();
 }
 
 /*
