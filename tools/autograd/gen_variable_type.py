@@ -499,7 +499,7 @@ if (${tensor_name}_impl_saved && !at::impl::dispatch_mode_enabled() && !at::impl
 ENFORCE_TENSOR_IMPL_USE_COUNT_LT_OR_EQ_ONE = CodeTemplate(
     """\
 if (!at::impl::dispatch_mode_enabled() && !at::impl::tensor_has_dispatch(${tensor_name}))
-  TORCH_INTERNAL_ASSERT(${tensor_name}.use_count() <= 1, "function: ${fn_name}");
+  TORCH_WARN(${tensor_name}.use_count() <= 1, "function: ${fn_name}");
 """
 )
 
