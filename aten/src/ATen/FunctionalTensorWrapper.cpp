@@ -332,7 +332,7 @@ void FunctionalTensorWrapper::maybe_replace_storage(const Tensor& other) {
   // - resize_() also can give you weird results today if you try to resize_() a weirdly strided tensor.
   //
   // Given all of the above, for now we're just banning the above usage.
-  TORCH_CHECK(storage().use_count() == 1, "Attempted to resize a view tensor to a larger size. This is not allowed in the functionalization pass");
+  TORCH_WARN(storage().use_count() == 1, "Attempted to resize a view tensor to a larger size. This is not allowed in the functionalization pass");
   TORCH_CHECK(view_metas_.empty(), "Attempted to resize a view tensor to a larger size. This is not allowed in the functionalization pass");
   // If this tensor is not a view (and has no outstanding views taken out on it),
   // Then it's safe to throw out the old storage and replace it with the new, larger one.

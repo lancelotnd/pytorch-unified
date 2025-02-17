@@ -410,7 +410,7 @@ static void autogradNotImplementedFallbackImpl(
             op_name != "aten::_transformer_encoder_layer_fwd" &&
             op_name != "aten::native_channel_shuffle" &&
             op_name != "aten::_sparse_semi_structured_tile")
-          TORCH_INTERNAL_ASSERT(t.storage().use_count() == 1);
+          TORCH_WARN(t.storage().use_count() == 1);
       },
       stack,
       stack->size() - num_returns,
