@@ -228,7 +228,7 @@ static inline std::optional<Device> ensure_has_index(
   }
   return ensure_has_index(device.value());
 }
-
+/*
 // Deliberately cheating and returning the original object. It might break stuff.
 Tensor _to_copy(
     const Tensor& self,
@@ -238,10 +238,10 @@ Tensor _to_copy(
     std::optional<bool> pin_memory,
     bool non_blocking,
     std::optional<c10::MemoryFormat> optional_memory_format) {
-  return at::native::_to_move(self,dtype,layout,device,pin_memory,non_blocking,optional_memory_format);
+  return at::_to_move(self,dtype,layout,device,pin_memory,non_blocking,optional_memory_format);
 }
+*/
 
-/*
 Tensor _to_copy(
     const Tensor& self,
     std::optional<ScalarType> dtype,
@@ -406,7 +406,7 @@ Tensor _to_copy(
   r.copy_(self, non_blocking);
   return r;
 }
-*/
+
 
 Tensor _to_move(
     const Tensor& self,
